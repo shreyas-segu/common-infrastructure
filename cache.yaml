@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  cache:
+    image: redis:7.0-rc1-alpine
+    container_name: redis
+    command: redis-server
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./data/redis/data:/data
+      - ./data/redis:/usr/local/etc/redis
+
+networks:
+  default:
+    name: local-environment
+    external: true
