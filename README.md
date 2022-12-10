@@ -17,8 +17,10 @@ make help
 ```sh
 # Start all services
 make
+
 # Stop all services
 make stop
+
 # Check status of all services
 make ps
 ```
@@ -44,6 +46,7 @@ make clean
 
 ## Pre Requisites
 - Docker
+- Docker Compose
 - Make
 
 ### Add to /etc/hosts
