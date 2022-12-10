@@ -1,57 +1,60 @@
-all: all-before mongodb-start rabbitmq-start kafka-start redis-start mysql-start postgresql-start
+help: # Show help for each of the Makefile recipes.
+	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
+
+all: all-before mongodb-start rabbitmq-start kafka-start redis-start mysql-start postgresql-start # Start all containers
 
 all-before: network-start
 
-stop: mongodb-stop rabbitmq-stop kafka-stop redis-stop mysql-stop postgresql-stop network-stop
+stop: mongodb-stop rabbitmq-stop kafka-stop redis-stop mysql-stop postgresql-stop network-stop # Stop and remove all containers
 
-status: mongodb-ps rabbitmq-ps kafka-ps redis-ps mysql-ps postgresql-ps
+status: mongodb-ps rabbitmq-ps kafka-ps redis-ps mysql-ps postgresql-ps # Show status of all containers
 
-clean: stop
+clean: stop # Stop and remove all containers and the data directory
 	rm -r data
 
-network-start:
+start-network: # Create the local-environment network
 	docker network create local-environment || true
-network-stop:
+stop-network: # Remove the local-environment network
 	docker network rm local-environment
 
-mongodb-start: network-start
+start-mongodb: network-start # Start the MongoDB cluster
 	docker compose -f mongodb-cluster.yaml up -d
-mongodb-stop:
+stop-mongodb: # Stop the MongoDB cluster
 	docker compose -f mongodb-cluster.yaml down
-mongodb-ps:
+ps-mongodb: # Show status of the MongoDB cluster
 	docker compose -f mongodb-cluster.yaml ps
 
-rabbitmq-start: network-start
+start-rabbitmq: network-start # Start the RabbitMQ cluster
 	docker compose -f rabbitmq.yaml up -d
-rabbitmq-stop:
+stop-rabbitmq: # Stop the RabbitMQ cluster
 	docker compose -f rabbitmq.yaml down
-rabbitmq-ps:
+ps-rabbitmq: # Show status of the RabbitMQ cluster
 	docker compose -f rabbitmq.yaml ps
 
-kafka-start: network-start
+start-kafka: network-start # Start the Kafka cluster
 	docker compose -f 1Z-3K-kafka-cluster.yaml up -d
-kafka-stop:
+stop-kafka: # Stop the Kafka cluster
 	docker compose -f 1Z-3K-kafka-cluster.yaml down
-kafka-ps:
+ps-kafka: # Show status of the Kafka cluster
 	docker compose -f 1Z-3K-kafka-cluster.yaml ps
 
-redis-start: network-start
+start-redis: network-start # Start the Redis
 	docker compose -f cache.yaml up -d
-redis-stop:
+stop-redis: # Stop the Redis
 	docker compose -f cache.yaml down
-redis-ps:
+ps-redis: # Show status of the Redis
 	docker compose -f cache.yaml ps
 
-mysql-start: network-start
+start-mysql: network-start # Start the MySQL
 	docker compose -f mysql.yaml up -d
-mysql-stop:
+stop-mysql: # Stop the MySQL
 	docker compose -f mysql.yaml down
-mysql-ps:
+ps-mysql: # Show status of the MySQL
 	docker compose -f mysql.yaml ps
 
-postgresql-start: network-start
+start-postgresql: network-start # Start the PostgreSQL
 	docker compose -f postgres.yaml up -d
-postgresql-stop: 
+stop-postgresql: # Stop the PostgreSQL
 	docker compose -f postgres.yaml down
-postgresql-ps:
+ps-postgresql: # Show status of the PostgreSQL
 	docker compose -f postgres.yaml ps
