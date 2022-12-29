@@ -1,13 +1,13 @@
 help: # Show help for each of the Makefile recipes.
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
 
-all: all-before mongodb-start rabbitmq-start kafka-start redis-start mysql-start postgresql-start # Start all containers
+all: all-before start-mongodb start-rabbitmq start-kafka start-redis start-mysql start-postgresql # Start all containers
 
 all-before: start-network
 
 stop: stop-mongodb stop-rabbitmq stop-kafka stop-redis stop-mysql stop-postgresql stop-network # Stop and remove all containers
 
-status: mongodb-ps rabbitmq-ps kafka-ps redis-ps mysql-ps postgresql-ps # Show status of all containers
+status: ps-mongodb ps-rabbitmq ps-kafka ps-redis ps-mysql ps-postgresql # Show status of all containers
 
 clean: stop # Stop and remove all containers and the data directory
 	rm -r data
