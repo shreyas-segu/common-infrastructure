@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  database:
+    image: mongo:4.2
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./data/mongo:/data/db
+    environment:
+      - MONGODB_DATABASE=testing
+      - ALLOW_EMPTY_PASSWORD=yes
+
+networks:
+  default:
+    name: local-environment
+    external: true
