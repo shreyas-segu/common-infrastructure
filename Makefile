@@ -1,13 +1,13 @@
 help: # Show help for each of the Makefile recipes.
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
 
-all: all-before start-mongodb-cluster start-mongodb start-rabbitmq start-kafka start-redis start-mysql start-postgresql start-kafka-ui # Start all containers
+all: all-before start-mongodb-cluster start-mongodb start-rabbitmq start-kafka start-redis start-mysql start-postgresql start-kafka-ui start-wiremock # Start all containers
 
 all-before: start-network
 
-stop: stop-mongodb-cluster stop-mongodb stop-rabbitmq stop-kafka stop-redis stop-mysql stop-postgresql stop-kafka-ui stop-network # Stop and remove all containers
+stop: stop-mongodb-cluster stop-mongodb stop-rabbitmq stop-kafka stop-redis stop-mysql stop-postgresql stop-kafka-ui stop-wiremock stop-network # Stop and remove all containers
 
-status: ps-mongodb-cluster ps-mongodb ps-rabbitmq ps-kafka ps-redis ps-mysql ps-postgresql ps-kafka-ui # Show status of all containers
+status: ps-mongodb-cluster ps-mongodb ps-rabbitmq ps-kafka ps-redis ps-mysql ps-postgresql ps-kafka-ui ps-wiremock# Show status of all containers
 
 clean: stop # Stop and remove all containers and the data directory
 	rm -r data
@@ -73,3 +73,11 @@ stop-kafka-ui: # Stop the Kafka UI
 	docker compose -f kafka-ui.yaml down
 ps-kafka-ui: # Show status of the Kafka UI
 	docker compose -f kafka-ui.yaml ps
+
+
+start-wiremock: start-network start-kafka # Start the Kafka UI
+	docker compose -f wiremock.yaml up -d
+stop-wiremock: # Stop the Kafka UI
+	docker compose -f wiremock.yaml down
+ps-wiremock: # Show status of the Kafka UI
+	docker compose -f wiremock.yaml ps
