@@ -7,3 +7,4 @@ services:
     container_name: wiremock
     volumes:
       - '$PWD/data/wiremock/extensions:/var/wiremock/extensions'
+      - '$PWD/mappings:/home/wiremock/mappings'

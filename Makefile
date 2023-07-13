@@ -75,9 +75,9 @@ ps-kafka-ui: # Show status of the Kafka UI
 	docker compose -f kafka-ui.yaml ps
 
 
-start-wiremock: start-network start-kafka # Start the Kafka UI
+start-wiremock: start-network
 	docker compose -f wiremock.yaml up -d
-stop-wiremock: # Stop the Kafka UI
+stop-wiremock: # Stop the Wiremock
 	docker compose -f wiremock.yaml down
-ps-wiremock: # Show status of the Kafka UI
+ps-wiremock: # Show status of the Wiremock
 	docker compose -f wiremock.yaml ps
