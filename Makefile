@@ -1,13 +1,15 @@
+.PHONY = help all all-before stop status clean start-network stop-network start-mongodb-cluster stop-mongodb-cluster ps-mongodb-cluster start-mongodb stop-mongodb ps-mongodb start-rabbitmq stop-rabbitmq ps-rabbitmq start-kafka stop-kafka ps-kafka start-redis stop-redis ps-redis start-mysql stop-mysql ps-mysql start-postgresql stop-postgresql ps-postgresql start-kafka-ui stop-kafka-ui ps-kafka-ui start-wiremock stop-wiremock ps-wiremock start-minio stop-minio ps-minio
+
 help: # Show help for each of the Makefile recipes.
 	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
 
-all: all-before start-mongodb-cluster start-mongodb start-rabbitmq start-kafka start-redis start-mysql start-postgresql start-kafka-ui start-wiremock # Start all containers
+all: all-before start-mongodb-cluster start-mongodb start-rabbitmq start-kafka start-redis start-mysql start-postgresql start-kafka-ui start-wiremock start-minio # Start all containers
 
 all-before: start-network
 
-stop: stop-mongodb-cluster stop-mongodb stop-rabbitmq stop-kafka stop-redis stop-mysql stop-postgresql stop-kafka-ui stop-wiremock stop-network # Stop and remove all containers
+stop: stop-mongodb-cluster stop-mongodb stop-rabbitmq stop-kafka stop-redis stop-mysql stop-postgresql stop-kafka-ui stop-wiremock stop-minio stop-network # Stop and remove all containers
 
-status: ps-mongodb-cluster ps-mongodb ps-rabbitmq ps-kafka ps-redis ps-mysql ps-postgresql ps-kafka-ui ps-wiremock# Show status of all containers
+status: ps-mongodb-cluster ps-mongodb ps-rabbitmq ps-kafka ps-redis ps-mysql ps-postgresql ps-kafka-ui ps-wiremock ps-minio # Show status of all containers
 
 clean: stop # Stop and remove all containers and the data directory
 	rm -r data
@@ -81,3 +83,10 @@ stop-wiremock: # Stop the Wiremock
 	docker compose -f wiremock.yaml down
 ps-wiremock: # Show status of the Wiremock
 	docker compose -f wiremock.yaml ps
+
+start-minio: start-network
+	docker compose -f minio.yaml up -d
+stop-minio: # Stop the Minio
+	docker compose -f minio.yaml down
+ps-minio: # Show status of the Minio
+	docker compose -f minio.yaml ps
