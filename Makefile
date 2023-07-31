@@ -1,92 +1,34 @@
-.PHONY = help all all-before stop status clean start-network stop-network start-mongodb-cluster stop-mongodb-cluster ps-mongodb-cluster start-mongodb stop-mongodb ps-mongodb start-rabbitmq stop-rabbitmq ps-rabbitmq start-kafka stop-kafka ps-kafka start-redis stop-redis ps-redis start-mysql stop-mysql ps-mysql start-postgresql stop-postgresql ps-postgresql start-kafka-ui stop-kafka-ui ps-kafka-ui start-wiremock stop-wiremock ps-wiremock start-minio stop-minio ps-minio
+.PHONY: help start all-before stop status clean start-network stop-network
 
-help: # Show help for each of the Makefile recipes.
-	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
+help: ## Show help for each of the Makefile recipes.
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Targets:"
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-all: all-before start-mongodb-cluster start-mongodb start-rabbitmq start-kafka start-redis start-mysql start-postgresql start-kafka-ui start-wiremock start-minio # Start all containers
 
 all-before: start-network
 
-stop: stop-mongodb-cluster stop-mongodb stop-rabbitmq stop-kafka stop-redis stop-mysql stop-postgresql stop-kafka-ui stop-wiremock stop-minio stop-network # Stop and remove all containers
+start: all-before start-network $(wildcard *.yaml) ## Start all containers
 
-status: ps-mongodb-cluster ps-mongodb ps-rabbitmq ps-kafka ps-redis ps-mysql ps-postgresql ps-kafka-ui ps-wiremock ps-minio # Show status of all containers
+stop: $(patsubst %.yaml,stop-%,$(wildcard *.yaml)) stop-network ## Stop and remove all containers
 
-clean: stop # Stop and remove all containers and the data directory
+status: $(patsubst %.yaml,ps-%,$(wildcard *.yaml)) ## Show status of all containers
+
+clean: stop ## Stop and remove all containers and the data directory
 	rm -r data
 
-start-network: # Create the local-environment network
+start-network: ## Create the local-environment network
 	docker network create local-environment || true
-stop-network: # Remove the local-environment network
+
+stop-network: ## Remove the local-environment network
 	docker network rm local-environment
 
-start-mongodb-cluster: start-network # Start the MongoDB cluster
-	docker compose -f mongodb-cluster.yaml up -d
-stop-mongodb-cluster: # Stop the MongoDB cluster
-	docker compose -f mongodb-cluster.yaml down
-ps-mongodb-cluster: # Show status of the MongoDB cluster
-	docker compose -f mongodb-cluster.yaml ps
+start-%: start-network ## Start a container based on a YAML file
+	docker compose -f $*.yaml up -d
 
-start-mongodb: start-network # Start MongoDB
-	docker compose -f mongodb.yaml up -d
-stop-mongodb: # Stop MongoDB
-	docker compose -f mongodb.yaml down
-ps-mongodb: # Show status of MongoDB
-	docker compose -f mongodb.yaml ps
+stop-%: ## Stop a container based on a YAML file
+	docker compose -f $*.yaml down
 
-start-rabbitmq: start-network # Start the RabbitMQ cluster
-	docker compose -f rabbitmq.yaml up -d
-stop-rabbitmq: # Stop the RabbitMQ cluster
-	docker compose -f rabbitmq.yaml down
-ps-rabbitmq: # Show status of the RabbitMQ cluster
-	docker compose -f rabbitmq.yaml ps
-
-start-kafka: start-network # Start the Kafka cluster
-	docker compose -f 1Z-3K-kafka-cluster.yaml up -d
-stop-kafka: # Stop the Kafka cluster
-	docker compose -f 1Z-3K-kafka-cluster.yaml down
-ps-kafka: # Show status of the Kafka cluster
-	docker compose -f 1Z-3K-kafka-cluster.yaml ps
-
-start-redis: start-network # Start the Redis
-	docker compose -f cache.yaml up -d
-stop-redis: # Stop the Redis
-	docker compose -f cache.yaml down
-ps-redis: # Show status of the Redis
-	docker compose -f cache.yaml ps
-
-start-mysql: start-network # Start the MySQL
-	docker compose -f mysql.yaml up -d
-stop-mysql: # Stop the MySQL
-	docker compose -f mysql.yaml down
-ps-mysql: # Show status of the MySQL
-	docker compose -f mysql.yaml ps
-
-start-postgresql: start-network # Start the PostgreSQL
-	docker compose -f postgres.yaml up -d
-stop-postgresql: # Stop the PostgreSQL
-	docker compose -f postgres.yaml down
-ps-postgresql: # Show status of the PostgreSQL
-	docker compose -f postgres.yaml ps
-
-
-start-kafka-ui: start-network start-kafka # Start the Kafka UI
-	docker compose -f kafka-ui.yaml up -d
-stop-kafka-ui: # Stop the Kafka UI
-	docker compose -f kafka-ui.yaml down
-ps-kafka-ui: # Show status of the Kafka UI
-	docker compose -f kafka-ui.yaml ps
-
-
-start-wiremock: start-network
-	docker compose -f wiremock.yaml up -d
-stop-wiremock: # Stop the Wiremock
-	docker compose -f wiremock.yaml down
-ps-wiremock: # Show status of the Wiremock
-	docker compose -f wiremock.yaml ps
-
-start-minio: start-network
-	docker compose -f minio.yaml up -d
-stop-minio: # Stop the Minio
-	docker compose -f minio.yaml down
-ps-minio: # Show status of the Minio
-	docker compose -f minio.yaml ps
+ps-%: ## Show status of a container based on a YAML file
+	docker compose -f $*.yaml ps
