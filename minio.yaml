@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   minio:
     image: 'minio/minio:latest'
@@ -11,3 +12,8 @@ services:
     volumes:
       - './data/minio/data:/data/minio'
     command: minio server /data/minio --console-address ":9090"
+
+networks:
+  default:
+    name: local-environment
+    external: true

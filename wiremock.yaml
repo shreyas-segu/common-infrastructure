@@ -3,8 +3,13 @@ services:
   wiremock:
     image: wiremock/wiremock
     ports:
-      - '8080:8080'
+      - '8081:8080'
     container_name: wiremock
     volumes:
       - '$PWD/data/wiremock/extensions:/var/wiremock/extensions'
       - '$PWD/mappings:/home/wiremock/mappings'
+
+networks:
+  default:
+    name: local-environment
+    external: true

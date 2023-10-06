@@ -6,10 +6,7 @@ help: ## Show help for each of the Makefile recipes.
 	@echo "Targets:"
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-
-all-before: start-network
-
-start: all-before start-network $(wildcard *.yaml) ## Start all containers
+start: start-network $(patsubst %.yaml,start-%,$(wildcard *.yaml))  ## Start all containers
 
 stop: $(patsubst %.yaml,stop-%,$(wildcard *.yaml)) stop-network ## Stop and remove all containers
 
@@ -19,7 +16,7 @@ clean: stop ## Stop and remove all containers and the data directory
 	rm -r data
 
 start-network: ## Create the local-environment network
-	docker network create local-environment || true
+	docker network create local-environment || echo true
 
 stop-network: ## Remove the local-environment network
 	docker network rm local-environment
@@ -31,4 +28,4 @@ stop-%: ## Stop a container based on a YAML file
 	docker compose -f $*.yaml down
 
 ps-%: ## Show status of a container based on a YAML file
-	docker compose -f $*.yaml ps
+	docker compose -f $*.yaml ps --format "{{.ID}}: {{.Ports}} {{.State}} {{.Names}}"
