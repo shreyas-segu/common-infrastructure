@@ -10,22 +10,21 @@ start: start-network $(patsubst %.yaml,start-%,$(wildcard *.yaml))  ## Start all
 
 stop: $(patsubst %.yaml,stop-%,$(wildcard *.yaml)) stop-network ## Stop and remove all containers
 
-status: $(patsubst %.yaml,ps-%,$(wildcard *.yaml)) ## Show status of all containers
+status: ## Status of all containers running 
+	@docker ps --format "table {{.ID}} \t {{.Ports}} \t {{.State}} \t {{.Names}}" --filter network=local-environment
 
 clean: stop ## Stop and remove all containers and the data directory
-	rm -r data
+	@rm -r data
 
 start-network: ## Create the local-environment network
-	docker network create local-environment || echo true
+	@docker network create local-environment || echo true
 
 stop-network: ## Remove the local-environment network
-	docker network rm local-environment
+	@docker network rm local-environment
 
 start-%: start-network ## Start a container based on a YAML file
-	docker compose -f $*.yaml up -d
+	@docker compose -f $*.yaml up -d
 
 stop-%: ## Stop a container based on a YAML file
-	docker compose -f $*.yaml down
+	@docker compose -f $*.yaml down
 
-ps-%: ## Show status of a container based on a YAML file
-	docker compose -f $*.yaml ps --format "{{.ID}}: {{.Ports}} {{.State}} {{.Names}}"
