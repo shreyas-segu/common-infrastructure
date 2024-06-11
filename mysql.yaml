@@ -21,3 +21,4 @@ networks:
   default:
     name: local-environment
     external: true
+
